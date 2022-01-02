@@ -4,7 +4,7 @@
     name: pi
     password: "{{ rpi_new_password | password_hash('sha512') }}"
     update_password: always
-  when: rpi_new_password != ""
+  when: rpi_new_password is defined
 
 - name: Determine desired boot behavior
   set_fact:
