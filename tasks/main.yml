@@ -26,12 +26,12 @@
 - name: Get boot environment
   shell: "raspi-config nonint get_boot_cli"
   register: rpi_boot_cli
-  changed_when: "{{ rpi_boot_cli.stdout|bool != rpi_enable_ui|bool }}" # 0 == cli, 1 == desktop
+  changed_when: rpi_boot_cli.stdout|bool != rpi_enable_ui|bool # 0 == cli, 1 == desktop
 
 - name: Get boot autologin
   shell: "raspi-config nonint get_autologin"
   register: rpi_auto_login
-  changed_when: "{{ rpi_auto_login.stdout|bool == rpi_autologin|bool }}" # 0 == enabled, 1 == disabled
+  changed_when: rpi_auto_login.stdout|bool == rpi_autologin|bool # 0 == enabled, 1 == disabled
 
 - name: Ensure boot behavior
   become: yes
@@ -43,7 +43,7 @@
 - name: Get hostname
   shell: "raspi-config nonint get_hostname"
   register: rpi_current_hostname
-  changed_when: "{{ rpi_current_hostname.stdout != rpi_hostname }}"
+  changed_when: rpi_current_hostname.stdout != rpi_hostname
 
 - name: Ensure hostname
   become: yes
