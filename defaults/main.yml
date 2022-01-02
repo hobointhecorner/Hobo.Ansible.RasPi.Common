@@ -1,0 +1,4 @@
+---
+rpi_hostname: "{{ inventory_hostname }}"
+rpi_autologin: no
+rpi_enable_ui: no

@@ -1,0 +1,53 @@
+---
+- name: Set password for pi user
+  user:
+    name: pi
+    password: "{{ rpi_new_password | password_hash('sha512') }}"
+    update_password: always
+  when: rpi_new_password != ""
+
+- name: Determine desired boot behavior
+  set_fact:
+    rpi_boot_behavior: >-
+      {% if rpi_enable_ui|bool -%}
+      {% if rpi_autologin|bool -%}
+      B4
+      {%- else -%}
+      B3
+      {%- endif %}
+      {%- else -%}
+      {% if rpi_autologin|bool %}
+      B2
+      {%- else -%}
+      B1
+      {%- endif %}
+      {%- endif %}
+
+- name: Get boot environment
+  shell: "raspi-config nonint get_boot_cli"
+  register: rpi_boot_cli
+  changed_when: "{{ rpi_boot_cli.stdout|bool != rpi_enable_ui|bool }}" # 0 == cli, 1 == desktop
+
+- name: Get boot autologin
+  shell: "raspi-config nonint get_autologin"
+  register: rpi_auto_login
+  changed_when: "{{ rpi_auto_login.stdout|bool == rpi_autologin|bool }}" # 0 == enabled, 1 == disabled
+
+- name: Ensure boot behavior
+  become: yes
+  when: rpi_boot_cli.changed or rpi_auto_login.changed
+  shell: raspi-config noning do_boot_behaviour {{ rpi_boot_behavior }}
+  notify:
+    - Restart computer
+
+- name: Get hostname
+  shell: "raspi-config nonint get_hostname"
+  register: rpi_current_hostname
+  changed_when: "{{ rpi_current_hostname.stdout != rpi_hostname }}"
+
+- name: Ensure hostname
+  become: yes
+  shell: "raspi-config nonint do_hostname {{ rpi_hostname }}"
+  when: rpi_current_hostname.changed
+  notify:
+    - Restart computer
