@@ -1,5 +1,9 @@
 # Hobo.Ansible.RasPi.Common
 
+## Install Role
+From inside your playbook roles directory:
+`git submodule add [-b <branch or tag>] https://github.com/hobointhecorner/Hobo.Ansible.RasPi.Common.git`
+
 ## Variables
 | Name             | Type   | Default | Desctiption |
 |------------------|--------|---------|-------------|
